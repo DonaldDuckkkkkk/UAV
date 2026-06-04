@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto">
+    <div class="flex items-center space-x-2 text-sm text-slate-400 mb-4 mono">
+        <a href="{{ url_for('index') }}" class="hover:text-amber-500 transition-colors">Головна</a>
+        <span>/</span>
+        <span class="text-slate-200">Реєстрація нової картки БПЛА</span>
+    </div>
+
+    <div class="bg-slate-900 border border-slate-800 rounded-xl p-8 shadow-xl">
+        <div class="border-b border-slate-800 pb-4 mb-6">
+            <h2 class="text-2xl font-bold uppercase tracking-wide text-slate-100 mono">Форма внесення даних БПЛА</h2>
+            <p class="text-xs text-slate-400 mt-1">Будь ласка, заповнюйте поля коректно відповідно до розвідданих технічного аналізу</p>
+        </div>
+
+        <form action="{{ url_for('add_uav') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2 mono">Тактична назва БПЛА</label>
+                    <input type="text" name="name" required placeholder="Наприклад, Шахед-136, Елерон"
+                           class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2.5 text-slate-100 focus:outline-none focus:border-amber-500 text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2 mono">Тип апарату</label>
+                    <input type="text" name="type" required placeholder="Камікадзе / Розвідник / Ударний"
+                           class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2.5 text-slate-100 focus:outline-none focus:border-amber-500 text-sm">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2 mono">Виробник / Країна</label>
+                    <input type="text" name="manufacturer" required placeholder="Наприклад, Іран / рф"
+                           class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2.5 text-slate-100 focus:outline-none focus:border-amber-500 text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2 mono">Робочі частоти керування / телеметрії</label>
+                    <input type="text" name="frequency" required placeholder="Наприклад, 915 МГц, CRSF, 2.4 ГГц"
+                           class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2.5 text-slate-100 focus:outline-none focus:border-amber-500 text-sm">
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2 mono">Аналітичний / Технічний опис</label>
+                <textarea name="description" rows="4" required placeholder="Опишіть особливості навігації, конструкції, оптичних систем чи засобів РЕБ..."
+                          class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2.5 text-slate-100 focus:outline-none focus:border-amber-500 text-sm"></textarea>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+                <div class="bg-slate-950 p-4 rounded-lg border border-slate-850">
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-amber-500 mb-2 mono">Фото БПЛА (Аватар)</label>
+                    <input type="file" name="avatar" accept="image/*" required
+                           class="w-full text-xs text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-slate-800 file:text-slate-200 hover:file:bg-slate-700 file:cursor-pointer">
+                </div>
+                <div class="bg-slate-950 p-4 rounded-lg border border-slate-850">
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-amber-500 mb-2 mono">Фото спектру сигнатур</label>
+                    <input type="file" name="spectrum" accept="image/*" required
+                           class="w-full text-xs text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-slate-800 file:text-slate-200 hover:file:bg-slate-700 file:cursor-pointer">
+                </div>
+            </div>
+
+            <div class="bg-slate-950 p-4 rounded-lg border border-slate-850">
+                <label class="block text-xs font-semibold uppercase tracking-wider text-amber-500 mb-2 mono">Додаткові оперативні фотографії (Необмежено)</label>
+                <input type="file" name="extra_photos" accept="image/*" multiple
+                       class="w-full text-xs text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-slate-800 file:text-slate-200 hover:file:bg-slate-700 file:cursor-pointer">
+                <p class="text-[10px] text-slate-500 mt-1.5">Ви можете обрати декілька файлів одночасно тримаючи Ctrl або Ctrl/Cmd</p>
+            </div>
+
+            <div class="flex space-x-4 pt-4 border-t border-slate-800">
+                <button type="submit" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-semibold py-2.5 px-6 rounded-lg transition-colors text-sm mono uppercase tracking-wider">
+                    Зберегти до Бази
+                </button>
+                <a href="{{ url_for('index') }}" class="bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold py-2.5 px-6 rounded-lg transition-colors text-sm mono uppercase tracking-wider border border-slate-700">
+                    Скасувати
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

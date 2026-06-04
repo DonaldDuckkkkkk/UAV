@@ -1,0 +1,617 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8 pb-4 border-b border-slate-900 gap-4">
+    <div>
+        <h1 class="text-3xl font-extrabold tracking-tight text-slate-100 uppercase mono">Каталог ворожих БПЛА</h1>
+        <p class="text-sm text-slate-400 mt-1">Оперативна інформація про ТТХ, робочі частоти та спектральні профілі сигналів</p>
+    </div>
+    
+    <form action="{{ url_for('index') }}" method="GET" class="w-full md:w-80 flex items-center relative">
+        <input type="text" name="search" value="{{ search_query }}" placeholder="Пошук за назвою або типом..." 
+               class="w-full bg-slate-900 border border-slate-800 rounded-lg pl-10 pr-4 py-2 text-sm text-slate-100 focus:outline-none focus:border-amber-500 transition-colors">
+        <i data-lucide="search" class="w-4 h-4 text-slate-500 absolute left-3"></i>
+        {% if search_query %}
+            <a href="{{ url_for('index') }}" class="absolute right-3 text-slate-500 hover:text-slate-300">
+                <i data-lucide="x" class="w-4 h-4"></i>
+            </a>
+        {% endif %}
+    </form>
+</div>
+
+<div class="grid grid-cols-1 gap-4">
+    {% for uav in uav_list %}
+    <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden hover:border-slate-750 transition-all shadow-lg">
+        
+        <div data-uav-header="{{ uav.id }}" class="p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 cursor-pointer select-none" onclick="toggleDetails('uav-{{ uav.id }}', this)">
+            <div class="flex-1">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                    <div>
+                        <div class="flex items-center gap-3">
+                            <div class="w-11 h-11 rounded-2xl overflow-hidden border border-slate-800 bg-slate-950 flex items-center justify-center">
+                                {% if uav.avatar and uav.avatar != '-' %}
+                                <img loading="lazy" src="{{ url_for('uploaded_file', filename=uav.avatar) }}" alt="{{ uav.name }}" class="w-full h-full object-cover">
+                                {% else %}
+                                <i data-lucide="plane" class="w-5 h-5 text-slate-500"></i>
+                                {% endif %}
+                            </div>
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <h3 class="text-xl font-bold text-slate-100 tracking-wide">{{ uav.name }}</h3>
+                                    <span class="bg-red-950/60 border border-red-500/30 text-red-400 text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider mono">
+                                        {{ uav.type }}
+                                    </span>
+                                </div>
+                                <p class="text-xs text-slate-400 mt-1 mono">Виробник: {{ uav.manufacturer }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-right sm:text-left">
+                        <div class="text-xs text-slate-400 uppercase tracking-[0.18em] mono">Частота</div>
+                        <div class="text-sm text-amber-500 font-semibold">{{ uav.frequency }}</div>
+                    </div>
+                </div>
+                <div class="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs text-slate-300">
+                    {% if uav.status %}
+                    <div class="rounded-xl bg-slate-950/80 border border-slate-800 p-3">
+                        <div class="text-slate-500 uppercase mono">Статус</div>
+                        <div class="font-semibold text-slate-100 mt-1">{{ uav.status }}</div>
+                    </div>
+                    {% endif %}
+                    {% if uav.max_altitude %}
+                    <div class="rounded-xl bg-slate-950/80 border border-slate-800 p-3">
+                        <div class="text-slate-500 uppercase mono">Висота</div>
+                        <div class="font-semibold text-slate-100 mt-1">{{ uav.max_altitude }}</div>
+                    </div>
+                    {% endif %}
+                    {% if uav.max_speed %}
+                    <div class="rounded-xl bg-slate-950/80 border border-slate-800 p-3">
+                        <div class="text-slate-500 uppercase mono">Швидкість</div>
+                        <div class="font-semibold text-slate-100 mt-1">{{ uav.max_speed }}</div>
+                    </div>
+                    {% endif %}
+                    {% if uav.realtime_range %}
+                    <div class="rounded-xl bg-slate-950/80 border border-slate-800 p-3">
+                        <div class="text-slate-500 uppercase mono">Дальність</div>
+                        <div class="font-semibold text-slate-100 mt-1">{{ uav.realtime_range }}</div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <button class="flex items-center space-x-1 text-xs text-slate-400 hover:text-amber-500 transition-colors bg-slate-950 px-3 py-2 rounded-lg border border-slate-800 mono">
+                <span>Детальніше</span>
+                <i data-lucide="chevron-down" class="w-4 h-4 transition-transform duration-300 transform arrow-icon"></i>
+            </button>
+        </div>
+
+        <div id="uav-{{ uav.id }}" class="hidden transition-all">
+            <div class="max-w-6xl mx-auto p-6 sm:p-10 space-y-12">
+                <!-- ШАПКА ОВЕРЛЕЮ -->
+                <div class="flex items-center justify-between border-b border-slate-800 pb-6">
+                    <h2 class="text-2xl font-bold text-amber-500 uppercase tracking-widest mono">Технічний формуляр</h2>
+                    <button type="button" data-close-details="uav-{{ uav.id }}" class="flex items-center gap-2 text-slate-400 hover:text-white transition-colors bg-slate-900 px-4 py-2 rounded-xl border border-slate-800 mono text-xs">
+                        <i data-lucide="x" class="w-4 h-4"></i>
+                        Закрити
+                    </button>
+                </div>
+
+                <!-- ГОЛОВНИЙ БЛОК ДЕТАЛЕЙ -->
+                <div class="rounded-3xl bg-slate-950/80 border border-slate-800 p-6 shadow-xl">
+                    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                        <div>
+                            <div class="text-xs uppercase tracking-[0.24em] text-slate-400 mono mb-2">Деталі БПЛА</div>
+                            <h3 class="text-2xl font-semibold text-slate-100 tracking-tight">{{ uav.name }}</h3>
+                            <p class="text-sm text-slate-400 mt-2">{{ uav.type }} · {{ uav.manufacturer }}</p>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-3">
+                            {% if uav.status %}
+                            <span class="inline-flex items-center rounded-full bg-amber-500/10 border border-amber-500/20 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-amber-300">{{ uav.status }}</span>
+                            {% endif %}
+                            {% if uav.frequency %}
+                            <span class="inline-flex items-center rounded-full bg-slate-900 border border-slate-800 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-200">{{ uav.frequency }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="mt-6 grid grid-cols-1 xl:grid-cols-[1.5fr_1fr] gap-6">
+                        <div class="rounded-3xl overflow-hidden border border-slate-800 bg-slate-950 shadow-lg">
+                            {% if uav.avatar and uav.avatar != '-' %}
+                            <img loading="lazy" src="{{ url_for('uploaded_file', filename=uav.avatar) }}" alt="{{ uav.name }}" class="w-full h-[360px] object-cover">
+                            {% else %}
+                            <div class="h-[360px] flex items-center justify-center bg-slate-900 text-slate-500">
+                                <i data-lucide="plane" class="w-16 h-16"></i>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="grid gap-4">
+                            <div class="rounded-3xl bg-slate-900/90 border border-slate-800 p-6 shadow-lg">
+                                <div class="grid grid-cols-2 gap-4 text-slate-300">
+                                    <div>
+                                        <div class="text-[10px] uppercase text-slate-500 mono tracking-[0.16em]">Тип</div>
+                                        <div class="text-sm font-semibold text-slate-100 mt-2">{{ uav.type }}</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-[10px] uppercase text-slate-500 mono tracking-[0.16em]">Виробник</div>
+                                        <div class="text-sm font-semibold text-slate-100 mt-2">{{ uav.manufacturer }}</div>
+                                    </div>
+                                    {% if uav.max_altitude %}
+                                    <div>
+                                        <div class="text-[10px] uppercase text-slate-500 mono tracking-[0.16em]">Макс. висота</div>
+                                        <div class="text-sm font-semibold text-slate-100 mt-2">{{ uav.max_altitude }}</div>
+                                    </div>
+                                    {% endif %}
+                                    {% if uav.max_speed %}
+                                    <div>
+                                        <div class="text-[10px] uppercase text-slate-500 mono tracking-[0.16em]">Макс. швидкість</div>
+                                        <div class="text-sm font-semibold text-slate-100 mt-2">{{ uav.max_speed }}</div>
+                                    </div>
+                                    {% endif %}
+                                    {% if uav.flight_time %}
+                                    <div>
+                                        <div class="text-[10px] uppercase text-slate-500 mono tracking-[0.16em]">Час польоту</div>
+                                        <div class="text-sm font-semibold text-slate-100 mt-2">{{ uav.flight_time }}</div>
+                                    </div>
+                                    {% endif %}
+                                    {% if uav.realtime_range %}
+                                    <div>
+                                        <div class="text-[10px] uppercase text-slate-500 mono tracking-[0.16em]">Дальність</div>
+                                        <div class="text-sm font-semibold text-slate-100 mt-2">{{ uav.realtime_range }}</div>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="rounded-3xl bg-slate-950/95 border border-slate-800 p-6 shadow-lg text-slate-300">
+                                <div class="text-xs uppercase tracking-[0.24em] text-slate-400 mono mb-3">Ключова інформація</div>
+                                <div class="space-y-3 text-sm leading-6">
+                                    <p><span class="text-slate-500 uppercase mono text-[10px]">Назва</span><br><span class="font-semibold text-slate-100">{{ uav.name }}</span></p>
+                                    <p><span class="text-slate-500 uppercase mono text-[10px]">Тип</span><br><span class="font-semibold text-slate-100">{{ uav.type }}</span></p>
+                                    {% if uav.status %}
+                                    <p><span class="text-slate-500 uppercase mono text-[10px]">Статус</span><br><span class="font-semibold text-slate-100">{{ uav.status }}</span></p>
+                                    {% endif %}
+                                    {% if uav.frequency %}
+                                    <p><span class="text-slate-500 uppercase mono text-[10px]">Робоча частота</span><br><span class="font-semibold text-amber-500">{{ uav.frequency }}</span></p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- АНАЛІТИЧНИЙ ОПИС І СПЕКТР -->
+                <div class="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-6">
+                    <div class="space-y-6">
+                        <div class="rounded-3xl bg-slate-950/90 border border-slate-800 p-6 shadow-lg">
+                            <div class="flex items-center gap-2 text-xs uppercase tracking-[0.24em] text-slate-400 mono mb-4">
+                                <i data-lucide="file-text" class="w-4 h-4 text-amber-500"></i>
+                                <span>Аналітичний опис системи</span>
+                            </div>
+                            <p class="text-sm text-slate-300 leading-relaxed">
+                                {{ uav.description }}
+                            </p>
+                        </div>
+
+                        {% if uav.extra_photos %}
+                        <div class="rounded-3xl bg-slate-950/90 border border-slate-800 p-6 shadow-lg">
+                            <div class="flex items-center gap-2 text-xs uppercase tracking-[0.24em] text-slate-400 mono mb-4">
+                                <i data-lucide="images" class="w-4 h-4 text-amber-500"></i>
+                                <span>Оперативні фотоматеріали / Радіограми</span>
+                            </div>
+                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2" data-uav-id="{{ uav.id }}" data-uav-name="{{ uav.name }}">
+                                {% for photo in uav.extra_photos %}
+                                <div class="aspect-square bg-slate-900 rounded-2xl border border-slate-800 overflow-hidden cursor-pointer group relative"
+                                     data-photo-url="{{ url_for('uploaded_file', filename=photo) }}"
+                                     data-photo-index="{{ loop.index0 }}"
+                                     onclick="openGallery(this)">
+                                    <img loading="lazy" src="{{ url_for('uploaded_file', filename=photo) }}" 
+                                         class="w-full h-full object-cover hover:scale-105 transition-transform duration-200" 
+                                         alt="UAV Photo">
+                                    <div class="absolute inset-0 bg-black/25 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none rounded-2xl">
+                                        <i data-lucide="expand" class="w-6 h-6 text-white"></i>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="rounded-3xl bg-slate-950/90 border border-slate-800 p-6 shadow-lg">
+                        <div class="flex items-center gap-2 text-xs uppercase tracking-[0.24em] text-slate-400 mono mb-4">
+                            <i data-lucide="activity" class="w-4 h-4 text-amber-500"></i>
+                            <span>Спектральний профіль сигналу</span>
+                        </div>
+                        <div class="h-56 bg-slate-900 rounded-3xl overflow-hidden border border-slate-800 flex items-center justify-center">
+                            {% if uav.spectrum and uav.spectrum != '-' %}
+                                <img src="{{ url_for('uploaded_file', filename=uav.spectrum) }}" alt="Spectrum" class="w-full h-full object-cover">
+                            {% else %}
+                                <div class="text-slate-700 flex flex-col items-center">
+                                    <i data-lucide="bar-chart-2" class="w-10 h-10 mb-1"></i>
+                                    <span class="text-xs mono">Спектрограма відсутня</span>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ОСНОВНІ ХАРАКТЕРИСТИКИ -->
+                {% if uav.wingspan or uav.max_weight or uav.flight_time or uav.max_altitude %}
+                <div class="border-t border-slate-850 pt-6">
+                    <h3 class="text-sm font-bold text-amber-500 mb-4 mono">
+                        <i data-lucide="gauge" class="w-4 h-4 inline mr-1"></i> Основні тактико-технічні характеристики
+                    </h3>
+                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                        {% if uav.wingspan %}
+                        <div class="bg-slate-950/70 border border-slate-800 rounded-lg p-3">
+                            <div class="text-[10px] text-slate-500 mono uppercase">Розмах крил</div>
+                            <div class="text-sm font-semibold text-slate-100 mt-1">{{ uav.wingspan }}</div>
+                        </div>
+                        {% endif %}
+                        {% if uav.max_weight %}
+                        <div class="bg-slate-950/70 border border-slate-800 rounded-lg p-3">
+                            <div class="text-[10px] text-slate-500 mono uppercase">Макс. вага</div>
+                            <div class="text-sm font-semibold text-slate-100 mt-1">{{ uav.max_weight }}</div>
+                        </div>
+                        {% endif %}
+                        {% if uav.flight_time %}
+                        <div class="bg-slate-950/70 border border-slate-800 rounded-lg p-3">
+                            <div class="text-[10px] text-slate-500 mono uppercase">Час польоту</div>
+                            <div class="text-sm font-semibold text-slate-100 mt-1">{{ uav.flight_time }}</div>
+                        </div>
+                        {% endif %}
+                        {% if uav.max_altitude %}
+                        <div class="bg-slate-950/70 border border-slate-800 rounded-lg p-3">
+                            <div class="text-[10px] text-slate-500 mono uppercase">Макс. висота</div>
+                            <div class="text-sm font-semibold text-slate-100 mt-1">{{ uav.max_altitude }}</div>
+                        </div>
+                        {% endif %}
+                        {% if uav.work_altitude %}
+                        <div class="bg-slate-950/70 border border-slate-800 rounded-lg p-3">
+                            <div class="text-[10px] text-slate-500 mono uppercase">Робоча висота</div>
+                            <div class="text-sm font-semibold text-slate-100 mt-1">{{ uav.work_altitude }}</div>
+                        </div>
+                        {% endif %}
+                        {% if uav.max_speed %}
+                        <div class="bg-slate-950/70 border border-slate-800 rounded-lg p-3">
+                            <div class="text-[10px] text-slate-500 mono uppercase">Макс. швидкість</div>
+                            <div class="text-sm font-semibold text-slate-100 mt-1">{{ uav.max_speed }}</div>
+                        </div>
+                        {% endif %}
+                        {% if uav.work_speed %}
+                        <div class="bg-slate-950/70 border border-slate-800 rounded-lg p-3">
+                            <div class="text-[10px] text-slate-500 mono uppercase">Робоча швидкість</div>
+                            <div class="text-sm font-semibold text-slate-100 mt-1">{{ uav.work_speed }}</div>
+                        </div>
+                        {% endif %}
+                        {% if uav.max_payload %}
+                        <div class="bg-slate-950/70 border border-slate-800 rounded-lg p-3">
+                            <div class="text-[10px] text-slate-500 mono uppercase">Корисне навантаження</div>
+                            <div class="text-sm font-semibold text-slate-100 mt-1">{{ uav.max_payload }}</div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- ОПТИЧНІ СИСТЕМИ -->
+                {% if uav.main_camera or uav.thermal_camera %}
+                <div class="border-t border-slate-850 pt-6">
+                    <h3 class="text-sm font-bold text-amber-500 mb-4 mono">
+                        <i data-lucide="camera" class="w-4 h-4 inline mr-1"></i> Оптичні системи і датчики
+                    </h3>
+                    <div class="space-y-3">
+                        {% if uav.main_camera %}
+                        <div class="bg-slate-950/70 border border-slate-800 rounded-lg p-3">
+                            <div class="text-[10px] text-slate-500 mono uppercase">Основна камера</div>
+                            <div class="text-sm text-slate-100 mt-1">{{ uav.main_camera }}</div>
+                        </div>
+                        {% endif %}
+                        {% if uav.thermal_camera or uav.thermal_type %}
+                        <div class="bg-slate-950/70 border border-slate-800 rounded-lg p-3">
+                            <div class="text-[10px] text-slate-500 mono uppercase">Тепловізійна система</div>
+                            <div class="text-sm text-slate-100 mt-1">
+                                {% if uav.thermal_type %}{{ uav.thermal_type }}{% elif uav.thermal_camera %}{{ uav.thermal_camera }}{% endif %}
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- РАДІУС ДІЇ -->
+                {% if uav.realtime_range or uav.autonomy_range %}
+                <div class="border-t border-slate-850 pt-6">
+                    <h3 class="text-sm font-bold text-amber-500 mb-4 mono">
+                        <i data-lucide="radio" class="w-4 h-4 inline mr-1"></i> Дальність управління
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        {% if uav.realtime_range %}
+                        <div class="bg-slate-950/70 border border-slate-800 rounded-lg p-3">
+                            <div class="text-[10px] text-slate-500 mono uppercase">Передача в реальному часі</div>
+                            <div class="text-sm text-slate-100 mt-1">{{ uav.realtime_range }}</div>
+                        </div>
+                        {% endif %}
+                        {% if uav.autonomy_range %}
+                        <div class="bg-slate-950/70 border border-slate-800 rounded-lg p-3">
+                            <div class="text-[10px] text-slate-500 mono uppercase">Автономна робота</div>
+                            <div class="text-sm text-slate-100 mt-1">{{ uav.autonomy_range }}</div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- НАВІГАЦІЯ -->
+                {% if uav.navigation %}
+                <div class="border-t border-slate-850 pt-6">
+                    <h3 class="text-sm font-bold text-amber-500 mb-4 mono">
+                        <i data-lucide="map-pin" class="w-4 h-4 inline mr-1"></i> Виконавач / Навігаційні системи
+                    </h3>
+                    <div class="bg-slate-950/70 border border-slate-800 rounded-lg p-4 text-sm text-slate-300">
+                        {{ uav.navigation }}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- КТР -->
+                {% if uav.ktr_frequency or uav.ktr_modulation %}
+                <div class="border-t border-slate-850 pt-6">
+                    <h3 class="text-sm font-bold text-amber-500 mb-4 mono">
+                        <i data-lucide="radio-tower" class="w-4 h-4 inline mr-1"></i> КТР - Канали управління та телеметрії
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        {% if uav.ktr_frequency %}
+                        <div class="bg-slate-950/70 border border-slate-800 rounded-lg p-3">
+                            <div class="text-[10px] text-slate-500 mono uppercase">Частотний діапазон</div>
+                            <div class="text-sm font-mono text-amber-400 mt-1">{{ uav.ktr_frequency }}</div>
+                        </div>
+                        {% endif %}
+                        {% if uav.ktr_bandwidth %}
+                        <div class="bg-slate-950/70 border border-slate-800 rounded-lg p-3">
+                            <div class="text-[10px] text-slate-500 mono uppercase">Смуга пропускання</div>
+                            <div class="text-sm text-slate-100 mt-1">{{ uav.ktr_bandwidth }}</div>
+                        </div>
+                        {% endif %}
+                        {% if uav.ktr_modulation %}
+                        <div class="bg-slate-950/70 border border-slate-800 rounded-lg p-3 md:col-span-2">
+                            <div class="text-[10px] text-slate-500 mono uppercase">Модуляція / Протокол</div>
+                            <div class="text-sm text-slate-100 mt-1">{{ uav.ktr_modulation }}</div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% if uav.ktr_details %}
+                    <div class="bg-slate-950/70 border border-slate-800 rounded-lg p-4 mt-3 text-sm text-slate-300">
+                        <div class="text-[10px] text-slate-500 mono uppercase mb-2">Характеристики сигналу</div>
+                        {{ uav.ktr_details }}
+                    </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                <!-- ВІДЕОКАНАЛ -->
+                {% if uav.video_frequency or uav.video_modulation %}
+                <div class="border-t border-slate-850 pt-6">
+                    <h3 class="text-sm font-bold text-amber-500 mb-4 mono">
+                        <i data-lucide="video" class="w-4 h-4 inline mr-1"></i> Відеоканал (DownLink)
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        {% if uav.video_frequency %}
+                        <div class="bg-slate-950/70 border border-slate-800 rounded-lg p-3">
+                            <div class="text-[10px] text-slate-500 mono uppercase">Частотний діапазон</div>
+                            <div class="text-sm font-mono text-amber-400 mt-1">{{ uav.video_frequency }}</div>
+                        </div>
+                        {% endif %}
+                        {% if uav.video_bandwidth %}
+                        <div class="bg-slate-950/70 border border-slate-800 rounded-lg p-3">
+                            <div class="text-[10px] text-slate-500 mono uppercase">Смуга пропускання</div>
+                            <div class="text-sm text-slate-100 mt-1">{{ uav.video_bandwidth }}</div>
+                        </div>
+                        {% endif %}
+                        {% if uav.video_modulation %}
+                        <div class="bg-slate-950/70 border border-slate-800 rounded-lg p-3 md:col-span-2">
+                            <div class="text-[10px] text-slate-500 mono uppercase">Модуляція / режим</div>
+                            <div class="text-sm text-slate-100 mt-1">{{ uav.video_modulation }}</div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- КНОПКА ПОВЕРНЕННЯ -->
+                <div class="pt-12 pb-20 flex justify-center">
+                    <button type="button" data-close-details="uav-{{ uav.id }}" class="group flex items-center gap-4 bg-amber-500 hover:bg-amber-600 text-slate-950 px-12 py-5 rounded-2xl font-bold transition-all shadow-xl shadow-amber-500/10 uppercase tracking-widest">
+                        <i data-lucide="arrow-left" class="w-5 h-5 group-hover:-translate-x-1 transition-transform"></i>
+                        <span>Повернутися до каталогу</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="text-center py-12 bg-slate-900 border border-slate-800 rounded-xl">
+        <i data-lucide="alert-circle" class="w-12 h-12 text-slate-600 mx-auto mb-3"></i>
+        <p class="text-slate-400 text-sm mono">Нічого не знайдено за вашим запитом.</p>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Модальна галерея — z-index піднятий до 99999 щоб перекривати detail-overlay -->
+<div id="gallery-modal" class="hidden fixed inset-0 z-[99999] bg-black/90 flex items-center justify-center p-4 backdrop-blur-sm">
+    <div class="relative w-full max-w-6xl h-screen max-h-[90vh] flex flex-col">
+        <button type="button" onclick="closeGallery()" class="absolute -top-12 right-0 text-slate-400 hover:text-white transition-colors z-50">
+            <i data-lucide="x" class="w-8 h-8"></i>
+        </button>
+
+        <div class="text-center text-sm text-slate-300 mono font-semibold mb-3">
+            <span id="gallery-title">-</span>
+        </div>
+
+        <div class="flex-grow flex items-center justify-center overflow-hidden rounded-xl bg-slate-950 mb-4">
+            <img id="gallery-image" src="" alt="Gallery" class="max-w-full max-h-full object-contain">
+        </div>
+
+        <div class="text-center text-sm text-slate-400 mono mb-3">
+            <span id="gallery-counter">1 / 1</span>
+        </div>
+
+        <div id="gallery-dots" class="flex justify-center gap-2 mb-4"></div>
+
+        <div class="flex items-center justify-between">
+            <button type="button" onclick="prevPhoto()" class="flex items-center space-x-2 bg-slate-800 hover:bg-slate-700 text-slate-200 px-4 py-2 rounded-lg transition-colors">
+                <i data-lucide="chevron-left" class="w-4 h-4"></i>
+                <span>Назад</span>
+            </button>
+
+            <div class="text-xs text-slate-500 mono text-center flex-1 px-4">
+                Навігація: ← → або стрілки клавіатури | ESC для закриття
+            </div>
+
+            <button type="button" onclick="nextPhoto()" class="flex items-center space-x-2 bg-amber-500 hover:bg-amber-600 text-slate-950 px-4 py-2 rounded-lg transition-colors font-medium">
+                <span>Далі</span>
+                <i data-lucide="chevron-right" class="w-4 h-4"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+let galleryState = {
+    currentIndex: 0,
+    currentGridContainer: null,
+    allPhotoElements: []
+};
+
+function openGallery(element) {
+    const gridContainer = element.closest('[data-uav-id]');
+    if (!gridContainer) return;
+    
+    galleryState.currentGridContainer = gridContainer;
+    galleryState.allPhotoElements = Array.from(gridContainer.querySelectorAll('[data-photo-index]'));
+    galleryState.currentIndex = parseInt(element.getAttribute('data-photo-index'));
+    
+    const modal = document.getElementById('gallery-modal');
+    if (modal) {
+        modal.classList.remove('hidden');
+        updateGalleryImage();
+        document.body.style.overflow = 'hidden';
+        // Ініціалізуємо іконки в модалці після відкриття
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+    }
+}
+
+function closeGallery() {
+    const modal = document.getElementById('gallery-modal');
+    if (modal) {
+        modal.classList.add('hidden');
+        // Не повертаємо scroll — він може бути заблокований detail-overlay
+    }
+}
+
+function nextPhoto() {
+    if (!galleryState.allPhotoElements.length) return;
+    galleryState.currentIndex = (galleryState.currentIndex + 1) % galleryState.allPhotoElements.length;
+    updateGalleryImage();
+}
+
+function prevPhoto() {
+    if (!galleryState.allPhotoElements.length) return;
+    galleryState.currentIndex = (galleryState.currentIndex - 1 + galleryState.allPhotoElements.length) % galleryState.allPhotoElements.length;
+    updateGalleryImage();
+}
+
+function goToPhoto(index) {
+    galleryState.currentIndex = Math.max(0, Math.min(index, galleryState.allPhotoElements.length - 1));
+    updateGalleryImage();
+}
+
+function updateGalleryImage() {
+    if (!galleryState.allPhotoElements.length) return;
+    
+    const currentElement = galleryState.allPhotoElements[galleryState.currentIndex];
+    const photoUrl = currentElement.getAttribute('data-photo-url');
+    const uavName = galleryState.currentGridContainer.getAttribute('data-uav-name') || 'БПЛА';
+    
+    const img = document.getElementById('gallery-image');
+    const counter = document.getElementById('gallery-counter');
+    const dotsContainer = document.getElementById('gallery-dots');
+    const title = document.getElementById('gallery-title');
+    
+    if (img) img.src = photoUrl;
+    if (title) title.textContent = uavName;
+    if (counter) counter.textContent = (galleryState.currentIndex + 1) + ' / ' + galleryState.allPhotoElements.length;
+    
+    if (dotsContainer) {
+        dotsContainer.innerHTML = '';
+        for (let i = 0; i < galleryState.allPhotoElements.length; i++) {
+            const dot = document.createElement('button');
+            dot.type = 'button';
+            dot.className = 'w-2 h-2 rounded-full transition-all ' + 
+                (i === galleryState.currentIndex ? 'bg-amber-500 w-8' : 'bg-slate-600 hover:bg-slate-500');
+            dot.onclick = (e) => {
+                e.preventDefault();
+                goToPhoto(i);
+            };
+            dotsContainer.appendChild(dot);
+        }
+    }
+}
+
+let openedUAVId = null;
+
+function closeDetails(id) {
+    const detailBlock = document.getElementById(id);
+    if (!detailBlock) return;
+
+    detailBlock.classList.add('hidden');
+    detailBlock.classList.remove('uav-detail-open');
+    document.body.classList.remove('locked-scroll');
+    document.body.style.overflow = '';
+    openedUAVId = null;
+    
+    document.querySelectorAll('.arrow-icon').forEach((arrow) => {
+        arrow.classList.remove('rotate-180');
+    });
+}
+
+function toggleDetails(id, headerElement) {
+    const detailBlock = document.getElementById(id);
+    const arrow = headerElement.querySelector('.arrow-icon');
+    
+    if (detailBlock.classList.contains('hidden')) {
+        if (openedUAVId && openedUAVId !== id) {
+            closeDetails(openedUAVId);
+        }
+        detailBlock.classList.remove('hidden');
+        detailBlock.classList.add('uav-detail-open');
+        document.body.classList.add('locked-scroll');
+        arrow.classList.add('rotate-180');
+        openedUAVId = id;
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+    } else {
+        closeDetails(id);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('[data-close-details]').forEach((button) => {
+        button.addEventListener('click', function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            closeDetails(button.getAttribute('data-close-details'));
+        });
+    });
+
+    document.addEventListener('keydown', function(e) {
+        const modal = document.getElementById('gallery-modal');
+        if (!modal || modal.classList.contains('hidden')) return;
+        
+        if (e.key === 'ArrowRight') nextPhoto();
+        if (e.key === 'ArrowLeft') prevPhoto();
+        if (e.key === 'Escape') closeGallery();
+    });
+
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+});
+</script>
+{% endblock %}

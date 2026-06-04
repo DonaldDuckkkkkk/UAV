@@ -1,0 +1,212 @@
+/* Локальний стиль-підтримка на випадок, якщо Tailwind CDN не завантажується */
+* {
+    box-sizing: border-box;
+}
+html {
+    scroll-behavior: smooth;
+}
+body {
+    margin: 0;
+    min-height: 100vh;
+    background: #020617;
+    color: #e2e8f0;
+    font-family: 'Inter', sans-serif;
+}
+img {
+    max-width: 100%;
+    display: block;
+}
+.hidden {
+    display: none !important;
+}
+.pointer-events-none {
+    pointer-events: none !important;
+}
+.opacity-60 {
+    opacity: 0.6 !important;
+}
+.cursor-not-allowed {
+    cursor: not-allowed !important;
+}
+.rotate-180 {
+    transform: rotate(180deg) !important;
+}
+.transition-all {
+    transition: all 0.2s ease;
+}
+a {
+    color: #f8fafc;
+    text-decoration: none;
+}
+nav {
+    background: rgba(15, 23, 42, 0.95);
+    border-bottom: 1px solid #334155;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+}
+nav .toolbar,
+.header-row,
+.card-row,
+.form-grid,
+.footer-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+nav .toolbar {
+    justify-content: space-between;
+    align-items: center;
+    min-height: 4rem;
+}
+button,
+input,
+textarea,
+select {
+    font: inherit;
+}
+button,
+a.button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border: none;
+    border-radius: 0.75rem;
+    padding: 0.75rem 1rem;
+    background: #f59e0b;
+    color: #0f172a;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+button:hover,
+a.button:hover {
+    background: #d97706;
+}
+input,
+textarea,
+select {
+    width: 100%;
+    border-radius: 0.85rem;
+    border: 1px solid #334155;
+    background: #0f172a;
+    color: #e2e8f0;
+    padding: 0.85rem 1rem;
+}
+textarea {
+    min-height: 10rem;
+}
+.card,
+.form-card,
+.table-card {
+    background: #0f172a;
+    border: 1px solid #334155;
+    border-radius: 1.25rem;
+    padding: 1.5rem;
+}
+.card + .card,
+.form-card + .form-card,
+.table-card + .table-card {
+    margin-top: 1rem;
+}
+h1,h2,h3,h4 {
+    margin: 0;
+}
+h1 {
+    font-size: clamp(2rem, 2.5vw, 3rem);
+}
+.text-muted {
+    color: #94a3b8;
+}
+.badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.35rem 0.75rem;
+    border-radius: 9999px;
+    background: rgba(248, 209, 29, 0.12);
+    color: #f8af1f;
+    font-size: 0.75rem;
+}
+.table-card table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.table-card th,
+.table-card td {
+    padding: 0.9rem 1rem;
+    border-bottom: 1px solid #334155;
+}
+.table-card thead {
+    background: #020617;
+}
+.table-card th {
+    text-align: left;
+    color: #94a3b8;
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+}
+.table-card tbody tr:hover {
+    background: rgba(148, 163, 184, 0.06);
+}
+.alert {
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(34, 197, 94, 0.2);
+    padding: 1rem;
+    border-radius: 1rem;
+    margin-bottom: 1rem;
+}
+.alert.error {
+    background: rgba(239, 68, 68, 0.1);
+    border-color: rgba(239, 68, 68, 0.2);
+    color: #fecaca;
+}
+footer {
+    border-top: 1px solid #334155;
+    padding: 1.5rem 1rem;
+    text-align: center;
+    color: #94a3b8;
+    font-size: 0.8rem;
+}
+@media (max-width: 768px) {
+    nav .toolbar,
+    .header-row,
+    .form-grid,
+    .card-row,
+    .footer-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}
+
+.locked-scroll {
+    overflow: hidden !important;
+}
+
+.uav-detail-open {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    z-index: 9999 !important;
+    background: #020617 !important;
+    overflow-y: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    border-radius: 0 !important;
+    display: block !important;
+}
+
+@keyframes slideDown {
+    from { 
+        opacity: 0; 
+        transform: translateY(-8px); 
+    }
+    to { 
+        opacity: 1; 
+        transform: translateY(0); 
+    }
+}

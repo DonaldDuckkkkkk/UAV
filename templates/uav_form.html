@@ -1,0 +1,240 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <div class="flex items-center justify-between mb-6 gap-4">
+        <div>
+            <h1 class="text-3xl font-extrabold tracking-tight text-slate-100 uppercase mono">{{ form_title }}</h1>
+            <p class="text-sm text-slate-400 mt-1">Управління інформацією про БПЛА в базі даних.</p>
+        </div>
+        <a href="{{ url_for('admin_panel') }}" class="inline-flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-200 px-4 py-3 rounded-lg transition-colors text-sm">
+            <i data-lucide="chevron-left" class="w-4 h-4"></i>
+            Повернутись до панелі
+        </a>
+    </div>
+
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-8 shadow-xl shadow-slate-950/30">
+        <form action="{{ form_action }}" method="POST" enctype="multipart/form-data" class="space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2 mono">Тактична назва БПЛА</label>
+                    <input type="text" name="name" value="{{ uav.name or '' }}" required placeholder="Наприклад, Шахед-136, Елерон"
+                           class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-3 text-slate-100 focus:outline-none focus:border-amber-500 text-sm" />
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2 mono">Тип апарату</label>
+                    <input type="text" name="type" value="{{ uav.type or '' }}" required placeholder="Камікадзе / Розвідник / Ударний"
+                           class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-3 text-slate-100 focus:outline-none focus:border-amber-500 text-sm" />
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2 mono">Виробник / Країна</label>
+                    <input type="text" name="manufacturer" value="{{ uav.manufacturer or '' }}" required placeholder="Наприклад, Іран / рф"
+                           class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-3 text-slate-100 focus:outline-none focus:border-amber-500 text-sm" />
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2 mono">Робочі частоти керування / телеметрії</label>
+                    <input type="text" name="frequency" value="{{ uav.frequency or '' }}" required placeholder="Наприклад, 915 МГц, CRSF, 2.4 ГГц"
+                           class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-3 text-slate-100 focus:outline-none focus:border-amber-500 text-sm" />
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2 mono">Аналітичний / Технічний опис</label>
+                <textarea name="description" rows="4" required placeholder="Опишіть особливості навігації, конструкції, оптичних систем чи засобів РЕБ..."
+                          class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-3 text-slate-100 focus:outline-none focus:border-amber-500 text-sm">{{ uav.description or '' }}</textarea>
+            </div>
+
+            <!-- ОСНОВНІ ХАРАКТЕРИСТИКИ -->
+            <div class="border-t border-slate-800 pt-6">
+                <h2 class="text-lg font-bold text-amber-500 mb-4 mono">Основні характеристики</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-400 mb-1 mono">Статус / Втрати (%)</label>
+                        <input type="text" name="status" value="{{ uav.status or '' }}" placeholder="30-40%" 
+                               class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-100 text-sm focus:outline-none focus:border-amber-500" />
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-400 mb-1 mono">Розмах крил</label>
+                        <input type="text" name="wingspan" value="{{ uav.wingspan or '' }}" placeholder="2,8 м" 
+                               class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-100 text-sm focus:outline-none focus:border-amber-500" />
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-400 mb-1 mono">Макс. вага</label>
+                        <input type="text" name="max_weight" value="{{ uav.max_weight or '' }}" placeholder="7,5 кг" 
+                               class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-100 text-sm focus:outline-none focus:border-amber-500" />
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-400 mb-1 mono">Час польоту</label>
+                        <input type="text" name="flight_time" value="{{ uav.flight_time or '' }}" placeholder="до 4 годин" 
+                               class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-100 text-sm focus:outline-none focus:border-amber-500" />
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-400 mb-1 mono">Макс. висота</label>
+                        <input type="text" name="max_altitude" value="{{ uav.max_altitude or '' }}" placeholder="5 000 м" 
+                               class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-100 text-sm focus:outline-none focus:border-amber-500" />
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-400 mb-1 mono">Робоча висота</label>
+                        <input type="text" name="work_altitude" value="{{ uav.work_altitude or '' }}" placeholder="800 - 3200 м" 
+                               class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-100 text-sm focus:outline-none focus:border-amber-500" />
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-400 mb-1 mono">Макс. швидкість</label>
+                        <input type="text" name="max_speed" value="{{ uav.max_speed or '' }}" placeholder="125 км/год" 
+                               class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-100 text-sm focus:outline-none focus:border-amber-500" />
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-400 mb-1 mono">Робоча швидкість</label>
+                        <input type="text" name="work_speed" value="{{ uav.work_speed or '' }}" placeholder="70-125 км/год" 
+                               class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-100 text-sm focus:outline-none focus:border-amber-500" />
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-400 mb-1 mono">Макс. корисне навантаження</label>
+                        <input type="text" name="max_payload" value="{{ uav.max_payload or '' }}" placeholder="1,5 кг" 
+                               class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-100 text-sm focus:outline-none focus:border-amber-500" />
+                    </div>
+                </div>
+            </div>
+
+            <!-- КАМЕРИ -->
+            <div class="border-t border-slate-800 pt-6">
+                <h2 class="text-lg font-bold text-amber-500 mb-4 mono">Оптичні системи</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-400 mb-1 mono">Основна камера</label>
+                        <input type="text" name="main_camera" value="{{ uav.main_camera or '' }}" placeholder="60x оптичне збільшення, Canon EOS 5D" 
+                               class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-100 text-sm focus:outline-none focus:border-amber-500" />
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-400 mb-1 mono">Тепловізійна камера</label>
+                        <input type="text" name="thermal_camera" value="{{ uav.thermal_camera or '' }}" placeholder="так / ні" 
+                               class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-100 text-sm focus:outline-none focus:border-amber-500" />
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-xs font-semibold uppercase text-slate-400 mb-1 mono">Модель тепловізійної камери</label>
+                        <input type="text" name="thermal_type" value="{{ uav.thermal_type or '' }}" placeholder="Flir Photon 320, Lynred PICO1024" 
+                               class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-100 text-sm focus:outline-none focus:border-amber-500" />
+                    </div>
+                </div>
+            </div>
+
+            <!-- РАДІУС ДІЇ -->
+            <div class="border-t border-slate-800 pt-6">
+                <h2 class="text-lg font-bold text-amber-500 mb-4 mono">Командні канали і дальність</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-400 mb-1 mono">Дальність реального часу</label>
+                        <input type="text" name="realtime_range" value="{{ uav.realtime_range or '' }}" placeholder="35-50 км (передача в реальному часі)" 
+                               class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-100 text-sm focus:outline-none focus:border-amber-500" />
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-400 mb-1 mono">Дальність автономно</label>
+                        <input type="text" name="autonomy_range" value="{{ uav.autonomy_range or '' }}" placeholder="100-120 км" 
+                               class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-100 text-sm focus:outline-none focus:border-amber-500" />
+                    </div>
+                </div>
+            </div>
+
+            <!-- НАВІГАЦІЯ -->
+            <div class="border-t border-slate-800 pt-6">
+                <h2 class="text-lg font-bold text-amber-500 mb-4 mono">Навігація</h2>
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-slate-400 mb-2 mono">Системи СРНС и інші</label>
+                    <textarea name="navigation" rows="3" placeholder="GPS, Galileo, Beidou, ГЛОНАСС; ІНС, радіомаяки, RTK..."
+                              class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-100 text-sm focus:outline-none focus:border-amber-500">{{ uav.navigation or '' }}</textarea>
+                </div>
+            </div>
+
+            <!-- КТР (УПРАВЛІННЯ ТА ТЕЛЕМЕТРІЯ) -->
+            <div class="border-t border-slate-800 pt-6">
+                <h2 class="text-lg font-bold text-amber-500 mb-4 mono">КТР (Керування та телеметрія)</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-400 mb-1 mono">Частотний діапазон</label>
+                        <input type="text" name="ktr_frequency" value="{{ uav.ktr_frequency or '' }}" placeholder="902-928 МГц" 
+                               class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-100 text-sm focus:outline-none focus:border-amber-500" />
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-400 mb-1 mono">Смуга пропускання</label>
+                        <input type="text" name="ktr_bandwidth" value="{{ uav.ktr_bandwidth or '' }}" placeholder="1 МГц" 
+                               class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-100 text-sm focus:outline-none focus:border-amber-500" />
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-400 mb-1 mono">Модуляція / Протокол</label>
+                        <input type="text" name="ktr_modulation" value="{{ uav.ktr_modulation or '' }}" placeholder="ППРЧ, 2FSK, GFSK, OFDM" 
+                               class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-100 text-sm focus:outline-none focus:border-amber-500" />
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <label class="block text-xs font-semibold uppercase text-slate-400 mb-1 mono">Детальні характеристики сигналу</label>
+                    <textarea name="ktr_details" rows="3" placeholder="Швидкість маніпуляції, зсув частот, кількість каналів, швидкість стрибків..."
+                              class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-100 text-sm focus:outline-none focus:border-amber-500">{{ uav.ktr_details or '' }}</textarea>
+                </div>
+            </div>
+
+            <!-- ВІДЕОКАНАЛ -->
+            <div class="border-t border-slate-800 pt-6">
+                <h2 class="text-lg font-bold text-amber-500 mb-4 mono">Відеоканал</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-400 mb-1 mono">Частотний діапазон</label>
+                        <input type="text" name="video_frequency" value="{{ uav.video_frequency or '' }}" placeholder="2,1 - 2,4 ГГц" 
+                               class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-100 text-sm focus:outline-none focus:border-amber-500" />
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-400 mb-1 mono">Смуга пропускання</label>
+                        <input type="text" name="video_bandwidth" value="{{ uav.video_bandwidth or '' }}" placeholder="~4 МГц" 
+                               class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-100 text-sm focus:outline-none focus:border-amber-500" />
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-xs font-semibold uppercase text-slate-400 mb-1 mono">Модуляція / режим передачи</label>
+                        <input type="text" name="video_modulation" value="{{ uav.video_modulation or '' }}" placeholder="COFDM, OFDM; TDD, FDD, Симплекс" 
+                               class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-100 text-sm focus:outline-none focus:border-amber-500" />
+                    </div>
+                </div>
+            </div>
+                <div class="bg-slate-950 p-4 rounded-xl border border-slate-850">
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-amber-500 mb-2 mono">Фото БПЛА (Аватар)</label>
+                    <input type="file" name="avatar" accept="image/*"
+                           class="w-full text-xs text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-slate-800 file:text-slate-200 hover:file:bg-slate-700 file:cursor-pointer" />
+                    {% if uav.avatar %}
+                        <p class="text-[11px] text-slate-500 mt-2">Поточний файл: {{ uav.avatar }}. Залиште пустим, щоб не змінювати.</p>
+                    {% endif %}
+                </div>
+                <div class="bg-slate-950 p-4 rounded-xl border border-slate-850">
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-amber-500 mb-2 mono">Фото спектру сигнатур</label>
+                    <input type="file" name="spectrum" accept="image/*"
+                           class="w-full text-xs text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-slate-800 file:text-slate-200 hover:file:bg-slate-700 file:cursor-pointer" />
+                    {% if uav.spectrum %}
+                        <p class="text-[11px] text-slate-500 mt-2">Поточний файл: {{ uav.spectrum }}. Залиште пустим, щоб не змінювати.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="bg-slate-950 p-4 rounded-xl border border-slate-850">
+                <label class="block text-xs font-semibold uppercase tracking-wider text-amber-500 mb-2 mono">Додаткові оперативні фотографії</label>
+                <input type="file" name="extra_photos" accept="image/*" multiple
+                       class="w-full text-xs text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-slate-800 file:text-slate-200 hover:file:bg-slate-700 file:cursor-pointer" />
+                <p class="text-[10px] text-slate-500 mt-1.5">Додайте нові файли або залиште пустим, якщо не потрібно оновлювати.</p>
+                {% if uav.extra_photos %}
+                <div class="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-2">
+                    {% for photo in uav.extra_photos %}
+                    <div class="aspect-video bg-slate-900 rounded-lg border border-slate-800 overflow-hidden">
+                        <img src="{{ url_for('uploaded_file', filename=photo) }}" class="w-full h-full object-cover" alt="Фото" />
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-slate-800">
+                <button type="submit" class="w-full sm:w-auto bg-amber-500 hover:bg-amber-600 text-slate-950 font-semibold py-3 px-6 rounded-xl transition-colors text-sm uppercase tracking-wider mono">{{ submit_text }}</button>
+                <a href="{{ url_for('admin_panel') }}" class="w-full sm:w-auto text-center bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold py-3 px-6 rounded-xl transition-colors text-sm uppercase tracking-wider mono">Скасувати</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

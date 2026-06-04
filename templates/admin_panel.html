@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto">
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+        <div>
+            <h1 class="text-3xl font-extrabold tracking-tight text-slate-100 uppercase mono">Адмін-панель</h1>
+            <p class="text-sm text-slate-400 mt-1">Управління картотекою БПЛА: додавання, редагування, видалення записів.</p>
+        </div>
+        <a href="{{ url_for('add_uav') }}" class="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-600 text-slate-950 px-4 py-3 rounded-lg font-semibold transition-colors text-sm">
+            <i data-lucide="plus-circle" class="w-4 h-4"></i>
+            Додати запис
+        </a>
+    </div>
+
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-xl">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-slate-800 text-sm">
+                <thead class="bg-slate-950/90 text-slate-400 uppercase text-[11px] tracking-[0.25em]">
+                    <tr>
+                        <th class="px-4 py-3 text-left">ID</th>
+                        <th class="px-4 py-3 text-left">Назва</th>
+                        <th class="px-4 py-3 text-left">Тип</th>
+                        <th class="px-4 py-3 text-left">Виробник</th>
+                        <th class="px-4 py-3 text-left">Частота</th>
+                        <th class="px-4 py-3 text-center">Дії</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-800 bg-slate-950">
+                    {% for uav in uav_list %}
+                    <tr class="hover:bg-slate-900/80 transition-colors">
+                        <td class="px-4 py-4 text-slate-200 mono">{{ uav.id }}</td>
+                        <td class="px-4 py-4 text-slate-100 font-semibold">{{ uav.name }}</td>
+                        <td class="px-4 py-4 text-slate-300">{{ uav.type }}</td>
+                        <td class="px-4 py-4 text-slate-300">{{ uav.manufacturer }}</td>
+                        <td class="px-4 py-4 text-slate-300">{{ uav.frequency }}</td>
+                        <td class="px-4 py-4 text-center space-x-2">
+                            <a href="{{ url_for('edit_uav', uav_id=uav.id) }}" class="inline-flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-2 rounded-lg transition-colors text-xs">
+                                <i data-lucide="edit-3" class="w-4 h-4"></i>
+                                Редагувати
+                            </a>
+                            <form action="{{ url_for('delete_uav', uav_id=uav.id) }}" method="POST" class="inline-block">
+                                <button type="submit" class="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-lg transition-colors text-xs" onclick="return confirm('Ви дійсно хочете видалити цей запис?');">
+                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                    Видалити
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="px-4 py-8 text-center text-slate-400">Немає доступних записів для відображення.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

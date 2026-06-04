@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-md mx-auto my-12">
+    <div class="bg-slate-900 border border-slate-800 rounded-xl p-8 shadow-xl shadow-black/40">
+        <div class="text-center mb-8">
+            <h2 class="text-2xl font-bold text-slate-100 uppercase tracking-wide mono">Авторизація оператора</h2>
+            <p class="text-xs text-slate-400 mt-2">Введіть облікові дані для доступу до модифікації бази</p>
+        </div>
+
+        <form action="{{ url_for('login') }}" method="POST" class="space-y-6">
+            <div>
+                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2 mono">Ідентифікатор / Логін</label>
+                <input type="text" name="username" required placeholder="Наприклад, admin"
+                       class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-3 text-slate-100 placeholder-slate-600 focus:outline-none focus:border-amber-500 transition-colors text-sm">
+            </div>
+
+            <div>
+                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2 mono">Пароль доступу</label>
+                <input type="password" name="password" required placeholder="••••••••"
+                       class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-3 text-slate-100 placeholder-slate-600 focus:outline-none focus:border-amber-500 transition-colors text-sm">
+            </div>
+
+            <button type="submit" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-semibold py-3 px-4 rounded-lg transition-colors text-sm uppercase tracking-wider mono">
+                Підтвердити оператора
+            </button>
+        </form>
+
+        <div class="mt-4 text-center">
+            <span class="text-[11px] text-slate-600 mono">Демо-дані: admin / password123</span>
+        </div>
+    </div>
+</div>
+{% endblock %}

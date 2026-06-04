@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>РЕДУТ: Каталог БПЛА</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        body { font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+        .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between selection:bg-amber-500 selection:text-slate-950">
+
+    <nav class="border-b border-slate-800 bg-slate-900/80 backdrop-blur-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="bg-amber-500/10 p-2 rounded-lg border border-amber-500/30 text-amber-500 animate-pulse">
+                    <i data-lucide="shield-alert" class="w-6 h-6"></i>
+                </div>
+                <a href="{{ url_for('index') }}" class="text-xl font-bold uppercase tracking-wider text-slate-100 mono">
+                    Редут<span class="text-amber-500">.БПЛА</span>
+                </a>
+            </div>
+
+            <div class="flex items-center space-x-4">
+                {% if session.get('is_admin') %}
+                    <a href="{{ url_for('admin_panel') }}" class="flex items-center space-x-2 bg-slate-800 hover:bg-slate-700 text-slate-200 px-4 py-2 rounded-lg font-medium transition-colors text-sm">
+                        <i data-lucide="shield-check" class="w-4 h-4"></i>
+                        <span>Адмін-панель</span>
+                    </a>
+                    <a href="{{ url_for('add_uav') }}" class="flex items-center space-x-2 bg-amber-500 hover:bg-amber-600 text-slate-950 px-4 py-2 rounded-lg font-medium transition-colors text-sm">
+                        <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                        <span>Додати БПЛА</span>
+                    </a>
+                    <a href="{{ url_for('logout') }}" class="flex items-center space-x-1 text-slate-400 hover:text-red-400 px-3 py-2 transition-colors text-sm">
+                        <i data-lucide="log-out" class="w-4 h-4"></i>
+                        <span>Вихід</span>
+                    </a>
+                {% else %}
+                    <a href="{{ url_for('login') }}" class="flex items-center space-x-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-4 py-2 rounded-lg font-medium transition-colors text-sm">
+                        <i data-lucide="log-in" class="w-4 h-4"></i>
+                        <span>Вхід для АС</span>
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full mt-4">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="p-4 rounded-lg mb-4 flex items-center space-x-3 {% if category == 'error' %} bg-red-950/50 border border-red-500/30 text-red-200 {% else %} bg-emerald-950/50 border border-emerald-500/30 text-emerald-200 {% endif %}">
+                        <i data-lucide="info" class="w-5 h-5 flex-shrink-0"></i>
+                        <span class="text-sm font-medium">{{ message }}</span>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="border-t border-slate-900 bg-slate-950 py-6 text-center text-xs text-slate-500 mono tracking-tight">
+        ІДС «РЕДУТ» // Спеціалізована база даних інженерного аналізу та РЕР // 2026
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        });
+    </script>
+</body>
+</html>
